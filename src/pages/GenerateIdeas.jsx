@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import bgImage from '../assets/generate-bg.png';  // ← make sure this matches your filename
-import * as XLSX from 'xlsx';
 import { useEffect } from 'react';
 
 
@@ -142,22 +141,26 @@ const sampleIdeas = [
 const GenerateIdeas = () => {
  const [ideasList, setIdeasList] = useState([]);  // will hold all ideas from Excel
  useEffect(() => {
-  fetch('/children_ideas.xlsx')
-    .then(res => res.arrayBuffer())
-    .then(buffer => {
+  const loadIdeas = async () => {
+    try {
+      const res = await fetch('/children_ideas.xlsx');
+      const buffer = await res.arrayBuffer();
+
+      // Dynamically import XLSX
+      const XLSX = await import('xlsx');
+
       const workbook = XLSX.read(buffer, { type: 'array' });
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
-      // Parse into array of arrays; assume first row is header
       const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-      // Grab the first column of each subsequent row, filter out empties
-      const loadedIdeas = rows
-        .slice(1)
-        .map(row => row[0])
-        .filter(Boolean);
+      const loadedIdeas = rows.slice(1).map(row => row[0]).filter(Boolean);
       setIdeasList(loadedIdeas);
-    })
-    .catch(err => console.error('Error loading Excel:', err));
+    } catch (err) {
+      console.error('Failed to load Excel:', err);
+    }
+  };
+
+  loadIdeas();
 }, []);
 
   const [loading, setLoading] = useState(false);
