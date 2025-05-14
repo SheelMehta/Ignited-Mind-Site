@@ -8,14 +8,12 @@ import VoteReview from './pages/VoteReview';
 
 function App() {
   return (
-    <BrowserRouter>
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/submit" element={<SubmitIdea />} />
         <Route path="/generate" element={<GenerateIdeas />} />
         <Route path="/vote" element={<VoteReview />} />
       </Routes>
-    </BrowserRouter>
   );
 }
 
